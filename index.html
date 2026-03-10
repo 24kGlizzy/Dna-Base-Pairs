@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>DNA Matcher</title>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <link rel="apple-touch-icon" href="https://img.icons8.com/color/180/dna-helix.png">
+    
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; text-align: center; background: #0f172a; color: white; display: flex; flex-direction: column; height: 100vh; justify-content: center; margin: 0; overflow: hidden; }
+        #base-to-match { font-size: 100px; font-weight: 800; margin-bottom: 30px; color: #60a5fa; text-shadow: 0 0 20px rgba(96, 165, 250, 0.5); }
+        .buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; padding: 25px; }
+        button { padding: 35px; font-size: 28px; font-weight: bold; border: none; border-radius: 20px; background: #1e293b; color: white; box-shadow: 0 4px 6px rgba(0,0,0,0.3); transition: transform 0.1s; }
+        button:active { transform: scale(0.95); background: #334155; }
+        #score { font-size: 24px; margin-top: 20px; opacity: 0.8; letter-spacing: 2px; }
+    </style>
+</head>
+<body>
+
+    <div id="score">SCORE: 0</div>
+    <div id="base-to-match">A</div>
+    <div class="buttons">
+        <button onclick="check('A')">A</button>
+        <button onclick="check('T')">T</button>
+        <button onclick="check('C')">C</button>
+        <button onclick="check('G')">G</button>
+    </div>
+
+    <script>
+        const pairs = { 'A': 'T', 'T': 'A', 'C': 'G', 'G': 'C' };
+        const bases = ['A', 'T', 'C', 'G'];
+        let score = 0;
+        let currentBase = 'A';
+
+        function nextRound() {
+            currentBase = bases[Math.floor(Math.random() * bases.length)];
+            document.getElementById('base-to-match').innerText = currentBase;
+        }
+
+        function check(input) {
+            if (input === pairs[currentBase]) {
+                score++;
+                document.getElementById('score').innerText = "SCORE: " + score;
+                nextRound();
+            } else {
+                alert("Game Over! " + currentBase + " pairs with " + pairs[currentBase]);
+                score = 0;
+                document.getElementById('score').innerText = "SCORE: 0";
+                nextRound();
+            }
+        }
+    </script>
+</body>
+</html>
