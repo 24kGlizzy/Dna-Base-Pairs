@@ -1,38 +1,72 @@
-
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>DNA Matcher</title>
+    <title>DNA Speed Match</title>
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
     <link rel="apple-touch-icon" href="https://img.icons8.com/color/180/dna-helix.png">
     
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; text-align: center; background: #0f172a; color: white; display: flex; flex-direction: column; height: 100vh; justify-content: center; margin: 0; overflow: hidden; }
-        #base-to-match { font-size: 100px; font-weight: 800; margin-bottom: 30px; color: #60a5fa; text-shadow: 0 0 20px rgba(96, 165, 250, 0.5); }
+        body { font-family: -apple-system, sans-serif; text-align: center; background: #0f172a; color: white; display: flex; flex-direction: column; height: 100vh; justify-content: center; margin: 0; overflow: hidden; }
+        .stats { display: flex; justify-content: space-around; font-size: 20px; font-weight: bold; margin-bottom: 20px; opacity: 0.9; }
+        #timer { color: #f87171; }
+        #base-to-match { font-size: 110px; font-weight: 800; margin-bottom: 30px; color: #60a5fa; min-height: 130px; }
         .buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; padding: 25px; }
-        button { padding: 35px; font-size: 28px; font-weight: bold; border: none; border-radius: 20px; background: #1e293b; color: white; box-shadow: 0 4px 6px rgba(0,0,0,0.3); transition: transform 0.1s; }
+        button { padding: 35px; font-size: 32px; font-weight: bold; border: none; border-radius: 20px; background: #1e293b; color: white; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
         button:active { transform: scale(0.95); background: #334155; }
-        #score { font-size: 24px; margin-top: 20px; opacity: 0.8; letter-spacing: 2px; }
+        button:disabled { opacity: 0.3; transform: none; }
+        #overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.9); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 10; }
+        .restart-btn { background: #60a5fa; padding: 15px 30px; font-size: 20px; margin-top: 20px; }
     </style>
 </head>
 <body>
 
-    <div id="score">SCORE: 0</div>
+    <div id="overlay">
+        <h1>TIME'S UP!</h1>
+        <div id="final-score" style="font-size: 30px;">Final Score: 0</div>
+        <button class="restart-btn" onclick="startGame()">Play Again</button>
+    </div>
+
+    <div class="stats">
+        <div>SCORE: <span id="score">0</span></div>
+        <div id="timer">60s</div>
+    </div>
+    
     <div id="base-to-match">A</div>
+    
     <div class="buttons">
-        <button onclick="check('A')">A</button>
-        <button onclick="check('T')">T</button>
-        <button onclick="check('C')">C</button>
-        <button onclick="check('G')">G</button>
+        <button class="game-btn" onclick="check('A')">A</button>
+        <button class="game-btn" onclick="check('T')">T</button>
+        <button class="game-btn" onclick="check('C')">C</button>
+        <button class="game-btn" onclick="check('G')">G</button>
     </div>
 
     <script>
         const pairs = { 'A': 'T', 'T': 'A', 'C': 'G', 'G': 'C' };
         const bases = ['A', 'T', 'C', 'G'];
         let score = 0;
+        let timeLeft = 60;
         let currentBase = 'A';
+        let timerId = null;
+
+        function startGame() {
+            score = 0;
+            timeLeft = 60;
+            document.getElementById('score').innerText = score;
+            document.getElementById('timer').innerText = timeLeft + "s";
+            document.getElementById('overlay').style.display = 'none';
+            
+            nextRound();
+            
+            if(timerId) clearInterval(timerId);
+            timerId = setInterval(() => {
+                timeLeft--;
+                document.getElementById('timer').innerText = timeLeft + "s";
+                if (timeLeft <= 0) endGame();
+            }, 1000);
+        }
 
         function nextRound() {
             currentBase = bases[Math.floor(Math.random() * bases.length)];
@@ -40,17 +74,27 @@
         }
 
         function check(input) {
+            if (timeLeft <= 0) return;
+            
             if (input === pairs[currentBase]) {
                 score++;
-                document.getElementById('score').innerText = "SCORE: " + score;
+                document.getElementById('score').innerText = score;
                 nextRound();
             } else {
-                alert("Game Over! " + currentBase + " pairs with " + pairs[currentBase]);
-                score = 0;
-                document.getElementById('score').innerText = "SCORE: 0";
-                nextRound();
+                // Flash red on error (optional)
+                document.body.style.background = "#450a0a";
+                setTimeout(() => document.body.style.background = "#0f172a", 100);
             }
         }
+
+        function endGame() {
+            clearInterval(timerId);
+            document.getElementById('final-score').innerText = "Final Score: " + score;
+            document.getElementById('overlay').style.display = 'flex';
+        }
+
+        // Start automatically on first load
+        startGame();
     </script>
 </body>
 </html>
